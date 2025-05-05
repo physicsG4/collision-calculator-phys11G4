@@ -340,6 +340,89 @@
       </div>
     </div>
   </div>
+
+  <script>
+    const collisionTypeSelect = document.getElementById('collision-type');
+    const formulaBox = document.querySelector('.formula-box');
+
+    const KE_BEFORE = document.getElementById('ke-before');
+    const KE_AFTER = document.getElementById('ke-after');
+    const KE_LOSS = document.getElementById('ke-loss');
+
+    const calculateBtn = document.querySelector('.calculate-btn');
+    const resetBtn = document.querySelector('.reset-btn');
+
+    const massUnits = {
+      'kilograms (kg)': 1,
+      'grams (g)': 0.001,
+      'milligrams (mg)': 0.000001,
+      'pound (lb)': 0.453592,
+      'ounces (oz)': 0.0283495,
+      'metric tons': 1000,
+      'atomic mass unit (amu)': 1.66053906660e-27
+    };
+
+    const velocityUnits = {
+      'm/s': 1,
+      'km/h': 1 / 3.6,
+      'mph': 0.44704,
+      'ft/s': 0.3048,
+      'cm/s': 0.01,
+      'in/s': 0.0254
+    };
+
+    function resetInputs() {
+      document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+      document.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+      KE_BEFORE.value = '';
+      KE_AFTER.value = '';
+      KE_LOSS.value = '';
+    }
+
+    function calculateCollision() {
+      const m1 = parseFloat(document.getElementById('m1').value);
+      const m2 = parseFloat(document.getElementById('m2').value);
+      const v1 = parseFloat(document.getElementById('v1').value);
+      const v2 = parseFloat(document.getElementById('v2').value);
+      const v1f = parseFloat(document.getElementById('v1f').value);
+      const v2f = parseFloat(document.getElementById('v2f').value);
+
+      const massUnit1 = document.querySelector('#m1 + .unit-select').value;
+      const massUnit2 = document.querySelector('#m2 + .unit-select').value;
+      const velocityUnit1 = document.querySelector('#v1 + .unit-select').value;
+      const velocityUnit2 = document.querySelector('#v2 + .unit-select').value;
+
+      // Convert inputs to standard units
+      const mass1 = m1 * massUnits[massUnit1];
+      const mass2 = m2 * massUnits[massUnit2];
+      const velocity1 = v1 * velocityUnits[velocityUnit1];
+      const velocity2 = v2 * velocityUnits[velocityUnit2];
+
+      // Calculate KE
+      const keBefore = 0.5 * mass1 * Math.pow(velocity1, 2) + 0.5 * mass2 * Math.pow(velocity2, 2);
+      const keAfter = 0.5 * mass1 * Math.pow(v1f, 2) + 0.5 * mass2 * Math.pow(v2f, 2);
+
+      KE_BEFORE.value = keBefore.toFixed(2);
+      KE_AFTER.value = keAfter.toFixed(2);
+      KE_LOSS.value = ((keBefore - keAfter) / keBefore * 100).toFixed(2);
+
+      // Automatically fill missing fields
+      if (isNaN(m1) && !isNaN(m2) && !isNaN(v1) && !isNaN(v2)) {
+        const calculatedM1 = (0.5 * m2 * Math.pow(v2, 2) - keBefore) / Math.pow(v1, 2);
+        document.getElementById('m1').value = calculatedM1.toFixed(2);
+      }
+      if (isNaN(v1) && !isNaN(m1) && !isNaN(m2) && !isNaN(v2)) {
+        const calculatedV1 = Math.sqrt((2 * (keBefore - 0.5 * m2 * Math.pow(v2, 2))) / m1);
+        document.getElementById('v1').value = calculatedV1.toFixed(2);
+      }
+      if (isNaN(v2) && !isNaN(m2) && !isNaN(m1) && !isNaN(v1)) {
+        const calculatedV2 = Math.sqrt((2 * (keBefore - 0.5 * m1 * Math.pow(v1, 2))) / m2);
+        document.getElementById('v2').value = calculatedV2.toFixed(2);
+      }
+    }
+
+    calculateBtn.addEventListener('click', calculateCollision);
+    resetBtn.addEventListener('click', resetInputs);
+  </script>
 </body>
-<script src="calculatorlogic.js"></script>
 </html>
